@@ -12,8 +12,7 @@ class TestAnogramm():
         ['foobar','bafoo',['test'],'estt','вижу','живу','Кабан','Банка'],
         ['fOobar','barfOO',['test','estt'],'ви жу',-10,'Кабан','Банка'],
         ['fOobar',None,'ви жу',-10,'Кабан','Банка'],
-        [''],
-        (None)
+        ['']
 
     ]
 
@@ -23,12 +22,14 @@ class TestAnogramm():
         assert response.status_code == 200
         assert response.json() == "This is Anogramm API. See /docs for more details"
 
-    # @pytest.mark.parametrize('data', test_data)
-    def test_load(self):
+    @pytest.mark.parametrize('data', test_data)
+    def test_load(self, data):
         response = self.client.post(
             '/load',
-            headers={'Content-Type: application/json'},
-            json=json.dumps(['foobar','barfoo','test','estt','вижу','живу','Кабан','Банка'])
+            headers={'Content-Type': 'application/json'},
+            data=json.dumps(data)
         )
-        assert response.status_code == 200
-
+        if all(isinstance(element, str) for element in data):
+            assert response.status_code == 200
+        else:
+            assert response.status_code != 200
