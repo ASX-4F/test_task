@@ -1,9 +1,10 @@
 from typing import List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 
 from database.connector import DatabaseConnector
 from utils.anogramm import collect_anograms
+import uvicorn
 
 app = FastAPI(
     title='Anogramm'
@@ -41,7 +42,7 @@ def get_all():
 
 
 @app.post('/load')
-def load(data: List[str]):
+def load(data: List[str], response: Response):
     '''
     Загружает слова в базу. В базу попадают только те, которых там еще нет.
     :param data: Json со списком слов для загрузки
@@ -51,11 +52,11 @@ def load(data: List[str]):
     if len(result) > 0:
         return f'data loaded: {result}'
     else:
+        response.status_code = status.HTTP_400_BAD_REQUEST
         return 'data is not unique'
 
-
 @app.post('/delete')
-def delete_words(data: List[str]):
+def delete_words(data: List[str], response: Response):
     '''
     Удаляет слова из БД
     :param data: Список слов для удаления
@@ -65,4 +66,8 @@ def delete_words(data: List[str]):
     if len(result) > 0:
         return f'data deleted: {result}'
     else:
+        response.status_code = status.HTTP_400_BAD_REQUEST
         return 'data is not exist'
+
+if __name__ == '__main__':
+    uvicorn.run('main:app')
